@@ -3,10 +3,7 @@ package app.dao;
 import app.model.Pasaxeiro;
 import app.model.Vuelo;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class CRUD {
@@ -17,9 +14,8 @@ public class CRUD {
     public CRUD(String query) throws SQLException {
         connection = Connexion.getConnection();
         statement = connection.createStatement(
-                ResultSet.TYPE_SCROLL_SENSITIVE,
-                ResultSet.CONCUR_UPDATABLE
-        );
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY);
         resultSet = statement.executeQuery(query);
     }
 
@@ -30,15 +26,17 @@ public class CRUD {
                 Pasaxeiro pasaxeiro = new Pasaxeiro(
                         resultSet.getString("dni"),
                         resultSet.getString("nome"),
-                        resultSet.getString("telefono"),
+                        resultSet.getString("telf"),
                         resultSet.getString("cidade"),
-                        resultSet.getInt("numeroReservas")
+                        resultSet.getInt("nreservas")
                 );
+                System.out.println("Cargando pasaxeiro: " + pasaxeiro);
                 pasaxeiros.add(pasaxeiro);
             }
         } catch (SQLException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error al obtener pasaxeiros: " + e.getMessage());
         }
+        System.out.println("Total de pasaxeiros cargados: " + pasaxeiros.size());
         return pasaxeiros;
     }
 
@@ -48,7 +46,7 @@ public class CRUD {
             while (resultSet.next()) {
                 Vuelo vuelo = new Vuelo(
                         resultSet.getInt("voo"),
-                        resultSet.getString("origen"),
+                        resultSet.getString("orixe"),
                         resultSet.getString("destino"),
                         resultSet.getDouble("prezo")
                 );
@@ -65,9 +63,9 @@ public class CRUD {
             resultSet.moveToInsertRow();
             resultSet.updateString("dni", pasaxeiro.getDni());
             resultSet.updateString("nome", pasaxeiro.getNome());
-            resultSet.updateString("telefono", pasaxeiro.getTelefono());
+            resultSet.updateString("telf", pasaxeiro.getTelefono());
             resultSet.updateString("cidade", pasaxeiro.getCidade());
-            resultSet.updateInt("numeroReservas", pasaxeiro.getNumeroResevas());
+            resultSet.updateInt("nreservas", pasaxeiro.getNumeroResevas());
             resultSet.insertRow();
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
@@ -78,7 +76,7 @@ public class CRUD {
         try {
             resultSet.moveToInsertRow();
             resultSet.updateInt("voo", vuelo.getId());
-            resultSet.updateString("origen", vuelo.getOrigen());
+            resultSet.updateString("orixe", vuelo.getOrigen());
             resultSet.updateString("destino", vuelo.getDestino());
             resultSet.updateDouble("prezo", vuelo.getPrecio());
             resultSet.insertRow();
@@ -86,6 +84,28 @@ public class CRUD {
             System.out.println("Error: " + e.getMessage());
         }
     }
+
+    public void updateNumeroReservas(Pasaxeiro pasaxeiro) {
+        String updateQuery = "UPDATE pasaxeiros SET nreservas = ? WHERE dni = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
+            preparedStatement.setInt(1, pasaxeiro.getNumeroResevas());
+            preparedStatement.setString(2, pasaxeiro.getDni());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar número de reservas: " + e.getMessage());
+        }
+    }
+
+    public void close() {
+        try {
+            resultSet.close();
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
 
 
 }

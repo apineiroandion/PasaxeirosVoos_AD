@@ -14,42 +14,53 @@ public class Recursos {
 
     public Recursos(String ruta) {
         this.ruta = ruta;
+        try {
+            fos = new FileOutputStream(ruta, true);
+            fis = new FileInputStream(ruta);
+            oos = new ObjectOutputStream(fos);
+            ois = new ObjectInputStream(fis);
+        } catch (Exception e) {
+            System.out.println("Error inicializando recursos: " + e.getMessage());
+        }
     }
 
     public FileInputStream getFis() {
-        try {
-            fis = new FileInputStream(ruta);
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
         return fis;
     }
 
+    public void setFis(FileInputStream fis) {
+        this.fis = fis;
+    }
+
     public FileOutputStream getFos() {
-        try {
-            fos = new FileOutputStream(ruta);
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
         return fos;
     }
 
+    public void setFos(FileOutputStream fos) {
+        this.fos = fos;
+    }
+
     public ObjectInputStream getOis() {
-        try {
-            ois = new ObjectInputStream(fis);
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
         return ois;
     }
 
+    public void setOis(ObjectInputStream ois) {
+        this.ois = ois;
+    }
+
     public ObjectOutputStream getOos() {
-        try {
-            oos = new ObjectOutputStream(fos);
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
         return oos;
     }
 
+    public void setOos(ObjectOutputStream oos) {
+        this.oos = oos;
+    }
+
+    public String getRuta() {
+        return ruta;
+    }
+
+    public void setRuta(String ruta) {
+        this.ruta = ruta;
+    }
 }

@@ -5,17 +5,27 @@ import app.model.Pasaxeiro;
 import app.model.Reserva;
 import app.model.Vuelo;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class Datos {
     private ArrayList<Pasaxeiro> pasaxeiros;
     private ArrayList<Reserva> reservas;
     private ArrayList<Vuelo> vuelos;
+    private Recursos recursos;
 
-    public Datos(ArrayList<Pasaxeiro> pasaxeiros, ArrayList<Reserva> reservas, ArrayList<Vuelo> vuelos) {
-        this.pasaxeiros = pasaxeiros;
+    public Datos() {
+        this.pasaxeiros = new ArrayList<>();
+        this.reservas = new ArrayList<>();
+        this.vuelos = new ArrayList<>();
+        this.recursos = new Recursos("reservas.dat");
+    }
+
+    public void guardarReservas (ArrayList<Reserva> reservas){
         this.reservas = reservas;
-        this.vuelos = vuelos;
     }
 
     public ArrayList<Reserva> cargarReservas(){
@@ -26,24 +36,36 @@ public class Datos {
         return reservas;
     }
 
-    public void serializeReservas(){
-        Recursos recursos = new Recursos("reservas.dat");
-        try {
-            recursos.getOos().writeObject(reservas);
+    public void serializeReservas() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(recursos.getRuta()))) {
+            oos.writeObject(reservas);
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error al serializar reservas: " + e.getMessage());
         }
     }
 
-    public ArrayList<Reserva> deserializeReservas(){
-        Recursos recursos = new Recursos("reservas.dat");
+    public ArrayList<Reserva> deserializeReservas() {
         ArrayList<Reserva> reservas = new ArrayList<>();
-        try {
-            reservas = (ArrayList<Reserva>) recursos.getOis().readObject();
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(recursos.getRuta()))) {
+            reservas = (ArrayList<Reserva>) ois.readObject();
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error al deserializar reservas: " + e.getMessage());
         }
         return reservas;
+    }
+
+    public void imprimirReservas(){
+        for (Reserva reserva : reservas) {
+            System.out.println(reserva.toString());
+        }
+        System.out.println("Total de reservas: " + reservas.size());
+    }
+
+    public void imprimirPasaxeiros() {
+        for (Pasaxeiro pasaxeiro : pasaxeiros) {
+            System.out.println(pasaxeiro.toString());
+        }
+        System.out.println("Total de pasaxeiros: " + pasaxeiros.size());
     }
 
     public ArrayList<Pasaxeiro> getPasaxeiros() {
@@ -69,4 +91,5 @@ public class Datos {
     public void setVuelos(ArrayList<Vuelo> vuelos) {
         this.vuelos = vuelos;
     }
+
 }
