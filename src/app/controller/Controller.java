@@ -13,10 +13,12 @@ public class Controller {
     Datos datos = new Datos();
     CRUD crudVuelos;
     CRUD crudPasaxeiro;
+    CRUD crud;
 
     public Controller() throws SQLException {
         this.crudVuelos = new CRUD(queryVuelos);
         this.crudPasaxeiro = new CRUD(queryPasaxeiro);
+        this.crud = new CRUD();
     }
 
     public void iniciarApp(){
@@ -31,24 +33,13 @@ public class Controller {
 
         datos.imprimirPasaxeiros();
         crudPasaxeiro.insterReservas(datos);
-        updateNumeroReservas();
+        crudPasaxeiro.updatePasaxeiros(datos.getPasaxeiros());
+        crud.getPasaxeirosWhitoutQuery(datos);
         datos.imprimirReservas();
+        datos.imprimirPasaxeiros();
 
 
 
     }
-
-    public void updateNumeroReservas(){
-        for (Pasaxeiro pasaxeiro : datos.getPasaxeiros()) {
-            for (Reserva reserva : datos.getReservas()) {
-                if (pasaxeiro.getDni().equals(reserva.getDni())) {
-                    crudPasaxeiro.updateNumeroReservas(pasaxeiro);
-                }
-            }
-        }
-        datos.setPasaxeiros(crudPasaxeiro.getPasaxeiros());
-    }
-
-
 
 }

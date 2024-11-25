@@ -13,6 +13,9 @@ public class CRUD {
     private Statement statement;
     private ResultSet resultSet;
 
+    public CRUD() {
+    }
+
     public CRUD(String query) throws SQLException {
         connection = Connexion.getConnection();
         statement = connection.createStatement(
@@ -40,6 +43,31 @@ public class CRUD {
         }
         System.out.println("Total de pasaxeiros cargados: " + pasaxeiros.size());
         return pasaxeiros;
+    }
+
+    public void getPasaxeirosWhitoutQuery(Datos datos){
+        ArrayList<Pasaxeiro> pasaxeiros = new ArrayList<>();
+        try {
+            connection = Connexion.getConnection();
+            statement = connection.createStatement(
+                    ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_READ_ONLY);
+            resultSet = statement.executeQuery("SELECT * FROM pasaxeiros");
+            while (resultSet.next()) {
+                Pasaxeiro pasaxeiro = new Pasaxeiro(
+                        resultSet.getString("dni"),
+                        resultSet.getString("nome"),
+                        resultSet.getString("telf"),
+                        resultSet.getString("cidade"),
+                        resultSet.getInt("nreservas")
+                );
+                System.out.println("Cargando pasaxeiro: " + pasaxeiro);
+                pasaxeiros.add(pasaxeiro);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener pasaxeiros: " + e.getMessage());
+        }
+        datos.setPasaxeiros(pasaxeiros);
     }
 
     public ArrayList<Vuelo> getVuelos() {
@@ -87,18 +115,33 @@ public class CRUD {
         }
     }
 
-    public void updateNumeroReservas(Pasaxeiro pasaxeiro) {
-        String updateQuery = "UPDATE pasaxeiros SET nreservas = ? WHERE dni = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
-            preparedStatement.setInt(1, pasaxeiro.getNumeroResevas());
-            preparedStatement.setString(2, pasaxeiro.getDni());
-            preparedStatement.executeUpdate();
+    public Integer getReservas(Pasaxeiro pasaxeiro){
+        String selectQuery = "SELECT * FROM reservasfeitas WHERE dni = ?";
+        Integer totalReservas = 0;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
+            preparedStatement.setString(1, pasaxeiro.getDni());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                totalReservas++;
+            }
         } catch (SQLException e) {
-            System.out.println("Error al actualizar número de reservas: " + e.getMessage());
+            System.out.println("Error al obtener reservas: " + e.getMessage());
         }
+        return totalReservas;
     }
 
     public void updatePasaxeiros(ArrayList<Pasaxeiro> pasaxeiros){
+        String updateQuery = "UPDATE pasaxeiros SET nreservas = ? WHERE dni = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
+            for (Pasaxeiro pasaxeiro : pasaxeiros) {
+                preparedStatement.setInt(1, getReservas(pasaxeiro));
+                preparedStatement.setString(2, pasaxeiro.getDni());
+                preparedStatement.executeUpdate();
+            }
+            System.out.println("Pasaxeiros actualizados correctamente");
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar pasaxeiros: " + e.getMessage());
+        }
     }
 
     public void insterReservas (Datos datos) {
