@@ -2,6 +2,8 @@
 
 package app.model;
 
+import app.model.datos.Datos;
+
 import java.io.Serializable;
 
 public class Reserva implements Serializable{
@@ -19,6 +21,19 @@ public class Reserva implements Serializable{
         this.dni = dni;
         this.idvooida = idvooida;
         this.idvoovolta = idvoovolta;
+    }
+
+    public String getNomeByDni(Datos datos){
+        for (Pasaxeiro pasaxeiro : datos.getPasaxeiros()) {
+            if (pasaxeiro.getDni().equals(this.dni)) {
+                return pasaxeiro.getNome();
+            }
+        }
+        return null;
+    }
+
+    public Integer getPrezoReserva(){
+        return idvooida + idvoovolta;
     }
 
     public int getCodr() {

@@ -57,4 +57,15 @@ public class Pasaxeiro {
     public void setNumeroResevas(Integer numeroResevas) {
         this.numeroResevas = numeroResevas;
     }
+
+    @Override
+    public String toString() {
+        return "Pasaxeiro{" +
+                "dni='" + dni + '\'' +
+                ", nome='" + nome + '\'' +
+                ", telefono='" + telefono + '\'' +
+                ", cidade='" + cidade + '\'' +
+                ", numeroResevas=" + numeroResevas +
+                '}';
+    }
 }

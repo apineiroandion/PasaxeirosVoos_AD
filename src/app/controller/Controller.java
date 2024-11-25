@@ -26,10 +26,14 @@ public class Controller {
         datos.guardarReservas(datos.cargarReservas());
         datos.serializeReservas();
         datos.deserializeReservas();
+
+
+
+        datos.imprimirPasaxeiros();
+        crudPasaxeiro.insterReservas(datos);
+        updateNumeroReservas();
         datos.imprimirReservas();
 
-        updateNumeroReservas();
-        datos.imprimirPasaxeiros();
 
 
     }

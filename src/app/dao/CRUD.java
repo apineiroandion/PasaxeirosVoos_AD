@@ -1,7 +1,9 @@
 package app.dao;
 
 import app.model.Pasaxeiro;
+import app.model.Reserva;
 import app.model.Vuelo;
+import app.model.datos.Datos;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -93,6 +95,26 @@ public class CRUD {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error al actualizar número de reservas: " + e.getMessage());
+        }
+    }
+
+    public void updatePasaxeiros(ArrayList<Pasaxeiro> pasaxeiros){
+    }
+
+    public void insterReservas (Datos datos) {
+        ArrayList<Reserva> reservas = datos.getReservas();
+        String insertQuery = "INSERT INTO reservasfeitas (codr, dni, nome, prezoreserva) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+            for (Reserva reserva : reservas) {
+                preparedStatement.setInt(1, reserva.getCodr());
+                preparedStatement.setString(2, reserva.getDni());
+                preparedStatement.setString(3, reserva.getNomeByDni(datos));
+                preparedStatement.setInt(4, reserva.getPrezoReserva());
+                preparedStatement.executeUpdate();
+            }
+            System.out.println("Reservas insertadas correctamente");
+        } catch (SQLException e) {
+            System.out.println("Error al insertar reservas: " + e.getMessage());
         }
     }
 
